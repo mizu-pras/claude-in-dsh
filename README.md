@@ -26,6 +26,10 @@ verification, model probing, and troubleshooting.
 ## Quick start
 
 ```bash
+# 0) Get the repo (public, no GitHub account needed)
+git clone https://github.com/mizu-pras/claude-in-dsh.git
+cd claude-in-dsh
+
 # 1) Log in: browser opens, approve, the record is written and verified.
 node claude-oauth-login.mjs
 
@@ -42,30 +46,67 @@ node claude-oauth-login.mjs --probe
 
 Then pick e.g. **Claude Opus 5.5** in the DSH model picker.
 
-## One prompt for DSH
+## Setup with an AI agent
 
-Paste this into a DSH chat and let the agent do the whole setup. It assumes the agent can
-run shell commands and edit files.
+The fastest path: let the agent inside DSH (or any coding agent that can run shell commands
+and edit files, e.g. Claude Code or Codex) do the whole setup for you. Open a new chat,
+paste the prompt below, and only step in when it shows you the login URL.
+
+**Before you paste**
+
+- Start the chat in a folder you are happy to clone into (for example your home folder or a
+  workspace folder). The agent clones the repo there.
+- The agent needs to write outside that folder (`~/.dsh/.credentials.yaml` and
+  `~/.dsh/profiles/<profile>/cordis.patch.yml`). In DSH's `workspace-write` mode it will ask
+  for approval; approve those two paths only.
+- Keep the browser on the same machine as DSH, or be ready to paste a code back
+  (`--copy-code`).
+
+**Prompt** (Indonesian, copy as-is):
 
 ```text
-Pasang Claude subscription (OAuth) di DSH ini memakai repo claude-in-dsh.
+Pasang Claude subscription (OAuth) di DSH ini memakai repo publik
+https://github.com/mizu-pras/claude-in-dsh.git
 
-1. Repo: kalau ~/Workspaces/personal/claude-in-dsh belum ada, clone
-   git@github.com-personal:mizu-pras/claude-in-dsh.git ke sana; kalau sudah ada, jalankan git pull.
-2. Baca README.md dan TUTORIAL-CLAUDE-SUBSCRIPTION.md di folder itu.
-3. Login: jalankan `node claude-oauth-login.mjs` sebagai background job, lalu tampilkan URL
-   otorisasinya ke saya. Tunggu job selesai (jangan dimatikan), lalu laporkan hasil verifikasinya.
-4. Route: deklarasikan provider `anthropic` di profil DSH yang sedang dipakai
-   (~/.dsh/profiles/<profil>/cordis.patch.yml). Backup file dulu, lalu pakai urutan model:
-   claude-opus-5-5, claude-fable-5-1, claude-sonnet-5-5, claude-haiku-5-5, lalu model lama
-   dari yang terbaru. Validasi YAML setelah edit.
-5. Uji: jalankan `node claude-oauth-login.mjs --probe` dan laporkan model yang gagal.
-6. Tutup dengan ringkasan: model yang aktif, lokasi record kredensial, dan langkah di UI
-   (muat ulang atau restart DSH, lalu pilih model Claude).
+1. Repo: kalau folder claude-in-dsh belum ada di working directory sesi ini, jalankan
+   `git clone https://github.com/mizu-pras/claude-in-dsh.git`; kalau sudah ada, masuk ke
+   folder itu dan jalankan `git pull`. Kalau `git` tidak tersedia, unduh
+   https://github.com/mizu-pras/claude-in-dsh/archive/refs/heads/main.zip lalu ekstrak.
+   Semua langkah berikut dijalankan dari folder repo itu.
+2. Baca README.md dan TUTORIAL-CLAUDE-SUBSCRIPTION.md di folder itu sebelum mengubah apa pun.
+3. Cek dulu: `node claude-oauth-login.mjs --print-path` untuk melihat lokasi store, status
+   record, dan status route. Kalau record sudah valid, lewati langkah 4.
+4. Login: jalankan `node claude-oauth-login.mjs` sebagai background job, lalu tampilkan URL
+   otorisasinya ke saya sebagai link. Tunggu job selesai (jangan dimatikan), lalu laporkan
+   hasil verifikasinya.
+5. Route: kalau provider `anthropic` belum dideklarasikan, tambahkan di profil DSH yang sedang
+   dipakai (~/.dsh/profiles/<profil>/cordis.patch.yml, di bawah `providers:` entry llm-pi-ai).
+   Backup file dulu. Jalankan `node claude-oauth-login.mjs --emit-models` dan pakai urutan
+   model: claude-opus-5-5, claude-fable-5-1, claude-sonnet-5-5, claude-haiku-5-5, lalu model
+   lama yang masih hidup dari yang terbaru. Validasi YAML setelah edit.
+6. Uji: jalankan `node claude-oauth-login.mjs --verify` dan `node claude-oauth-login.mjs --probe`,
+   lalu laporkan model yang gagal.
+7. Tutup dengan ringkasan: lokasi repo, model yang aktif, lokasi record kredensial, file yang
+   diubah beserta backup-nya, dan langkah di UI (muat ulang atau restart DSH, lalu pilih
+   model Claude).
 
 Aturan: jangan mencetak token atau isi kredensial. Jangan mengubah konfigurasi di luar yang
 diminta. Kalau `node` tidak ada, pakai Node bawaan DSH Desktop. Kalau browser tidak bisa
 membuka localhost, ulangi login dengan `--copy-code` dan minta saya menempelkan kodenya.
+```
+
+**Follow-up prompts**
+
+```text
+Cek ulang setup Claude subscription dari repo claude-in-dsh: jalankan
+`node claude-oauth-login.mjs --verify` dan `--probe`, laporkan model yang gagal tanpa
+mencetak token.
+```
+
+```text
+Token Claude subscription saya error. Di repo claude-in-dsh, jalankan
+`node claude-oauth-login.mjs --refresh`; kalau gagal, login ulang dengan
+`node claude-oauth-login.mjs` sebagai background job dan tampilkan URL-nya ke saya.
 ```
 
 ## Commands
