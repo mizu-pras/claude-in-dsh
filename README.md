@@ -42,6 +42,77 @@ node claude-oauth-login.mjs --probe
 
 Then pick e.g. **Claude Opus 5.5** in the DSH model picker.
 
+## Let DSH do it (copy-paste prompts)
+
+Instead of running the steps yourself, paste one of the prompts below into a DSH chat.
+A DSH agent with shell + file access can run the login in the background, relay the
+authorization URL, declare the route, and verify the result. These prompts are written
+in Indonesian because that is the language the author uses with DSH; translate them
+freely — the instructions, not the wording, are what matters.
+
+### Fresh machine: clone and set up
+
+Clone the repo first (or let DSH do it), then paste:
+
+```text
+Pasang integrasi Claude subscription di DSH ini dari repo GitHub.
+
+1. Clone git@github.com-personal:mizu-pras/claude-in-dsh.git ke ~/Workspaces/personal/claude-in-dsh
+   (kalau foldernya sudah ada, cukup git pull).
+2. Baca README.md dan TUTORIAL-CLAUDE-SUBSCRIPTION.md di folder itu.
+3. Jalankan `node claude-oauth-login.mjs` sebagai background job, ambil URL otorisasi dari
+   output-nya dan tampilkan ke saya. Saya akan login di browser. Tunggu sampai job selesai,
+   jangan dimatikan, lalu laporkan hasil verifikasinya.
+4. Deklarasikan route `anthropic` di profil DSH yang sedang dipakai
+   (~/.dsh/profiles/<profil>/cordis.patch.yml) dengan urutan model: claude-opus-5-5,
+   claude-fable-5-1, claude-sonnet-5-5, claude-haiku-5-5, lalu model lama dari terbaru ke
+   terlama. Backup file dulu, dan validasi YAML setelah edit.
+5. Jalankan `node claude-oauth-login.mjs --probe` dan laporkan model yang tidak bisa dipakai.
+6. Ringkas hasilnya: model yang aktif, lokasi record kredensial, dan langkah di UI
+   (muat ulang/restart DSH, lalu pilih model Claude).
+
+Jangan mencetak isi token ke chat. Jangan mengubah konfigurasi atau kredensial lain di luar
+yang saya minta. Kalau `node` tidak tersedia, pakai Node bawaan DSH Desktop.
+```
+
+### Already cloned: do the login and route only
+
+```text
+Di repo ~/Workspaces/personal/claude-in-dsh, bantu saya login Claude subscription ke DSH.
+
+1. Jalankan `node claude-oauth-login.mjs` sebagai background job dan tampilkan URL
+   otorisasinya. Saya login di browser; tunggu job selesai lalu laporkan verifikasinya.
+2. Pastikan route `anthropic` ada di profil DSH aktif dengan urutan model
+   claude-opus-5-5 > claude-fable-5-1 > claude-sonnet-5-5 > claude-haiku-5-5 > model lama
+   (backup + validasi YAML dulu).
+3. Jalankan `--probe`, lalu beri tahu saya kalau perlu restart DSH.
+
+Jangan mencetak token dan jangan mengubah hal lain.
+```
+
+### Check or refresh later
+
+```text
+Di repo ~/Workspaces/personal/claude-in-dsh jalankan `node claude-oauth-login.mjs --print-path`
+lalu `--probe`. Laporkan status record, status route, dan model mana yang tidak bisa dipakai.
+Jangan ubah apa pun.
+```
+
+```text
+Token Claude subscription saya mungkin perlu disegarkan. Di repo
+~/Workspaces/personal/claude-in-dsh jalankan `node claude-oauth-login.mjs --refresh`, lalu
+`--verify`, dan laporkan hasilnya tanpa mencetak token.
+```
+
+Notes:
+
+- Let the agent run the login as a **background job**: the OAuth callback waits for your
+  browser approval, and killing the process abandons the attempt.
+- The authorization URL is shown in the chat. Open it on the same Mac as DSH; otherwise
+  use `--copy-code` and paste the code back to the agent.
+- A DSH restart ends the running chat, so the agent declares the route first and only
+  then tells you to restart (or you can just reload the window).
+
 ## Commands
 
 ```bash
